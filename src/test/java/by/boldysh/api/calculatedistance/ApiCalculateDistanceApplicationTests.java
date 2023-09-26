@@ -1,4 +1,4 @@
-package com.example.apicalculatedistance;
+package by.boldysh.api.calculatedistance;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
