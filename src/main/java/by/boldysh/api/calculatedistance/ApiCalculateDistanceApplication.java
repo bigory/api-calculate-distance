@@ -1,4 +1,4 @@
-package com.example.apicalculatedistance;
+package by.boldysh.api.calculatedistance;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
