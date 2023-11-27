@@ -1,7 +1,6 @@
 package by.boldysh.api.calculatedistance.service;
 
 
-
 import by.boldysh.api.calculatedistance.entity.Account;
 import by.boldysh.api.calculatedistance.repository.AccountRepository;
 import by.boldysh.api.calculatedistance.security.UserDetailServiceImpl;
@@ -15,8 +14,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class AccountAuthService implements UserDetailsService {
 
+    private final AccountRepository accountRepository;
+
     @Autowired
-    private AccountRepository accountRepository;
+    public AccountAuthService(AccountRepository accountRepository) {
+        this.accountRepository = accountRepository;
+    }
 
     @Override
     public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {

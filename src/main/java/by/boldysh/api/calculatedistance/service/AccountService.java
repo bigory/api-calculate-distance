@@ -7,6 +7,7 @@ import by.boldysh.api.calculatedistance.entity.Account;
 import by.boldysh.api.calculatedistance.entity.RateLimit;
 import by.boldysh.api.calculatedistance.exception.AccountNotFoundException;
 import by.boldysh.api.calculatedistance.repository.AccountRepository;
+import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -19,15 +20,18 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class AccountService {
 
-    @Autowired
-    private AccountRepository accountRepository;
+    private final AccountRepository accountRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    public AccountService(AccountRepository accountRepository, PasswordEncoder passwordEncoder) {
+        this.accountRepository = accountRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @Cacheable(cacheNames = "user", key = "#id")
-    public AccountDto getAccountById(Long id) {
-        Account account = accountRepository.findById(id).orElseThrow(() ->
+    public AccountDto getAccountById(@Param("idaccount") Long id) {
+        Account account = accountRepository.getAccountById(id).orElseThrow(() ->
                 new AccountNotFoundException(String.format("Account %s not found", id)));
         return AccountDto.builder()
                 .id(account.getId())

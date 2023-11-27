@@ -1,6 +1,5 @@
 package by.boldysh.api.calculatedistance.entity;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -34,7 +33,7 @@ public class RateLimit {
     private Long maxLimitRequests;
     @Enumerated(EnumType.STRING)
     private TimeUnit timeUnit;
-    @OneToMany(mappedBy = "rateLimit", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "rateLimit")
     private List<Account> accounts;
 
 }

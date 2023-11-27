@@ -7,7 +7,7 @@ import by.boldysh.api.calculatedistance.utils.CalculateDistanceUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,10 +16,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class DistanceController {
 
-    @Autowired
-    private RateLimitService rateLimitService;
+    private final RateLimitService rateLimitService;
 
-    @GetMapping( "api/calculate-distance")
+    @Autowired
+    public DistanceController(RateLimitService rateLimitService) {
+        this.rateLimitService = rateLimitService;
+    }
+
+    @PostMapping("api/calculate-distance")
     public ResponseEntity<?> getCalculateDistance(@RequestParam("id") Long id, @RequestBody Coordinates coordinates) {
         boolean rateLimited = rateLimitService.isRateLimited(id);
         if (rateLimited) {

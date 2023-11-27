@@ -6,6 +6,7 @@ import by.boldysh.api.calculatedistance.dto.RateLimitDto;
 import by.boldysh.api.calculatedistance.entity.RateLimit;
 import by.boldysh.api.calculatedistance.repository.RateLimitRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -16,12 +17,16 @@ import java.util.concurrent.TimeUnit;
 public class RateLimitService {
 
     private final static String RATE_LIMIT_KEY = "user:%s";
+    private final RedisTemplate<String, Object> redisTemplate;
+    private final RateLimitRepository limitRepository;
+    private final AccountService accountService;
+
     @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
-    @Autowired
-    private RateLimitRepository limitRepository;
-    @Autowired
-    private AccountService accountService;
+    public RateLimitService(RedisTemplate<String, Object> redisTemplate, RateLimitRepository limitRepository, AccountService accountService) {
+        this.redisTemplate = redisTemplate;
+        this.limitRepository = limitRepository;
+        this.accountService = accountService;
+    }
 
     public boolean isRateLimited(Long id) {
         AccountDto account = accountService.getAccountById(id);
@@ -44,4 +49,22 @@ public class RateLimitService {
         limitRepository.save(rateLimit);
     }
 
+    public void deleteRateLimit(RateLimitDto rateLimitDto) {
+        RateLimit rateLimit = RateLimit.builder()
+                .id(rateLimitDto.getId())
+                .limitDuration(rateLimitDto.getLimitDuration())
+                .maxLimitRequests(rateLimitDto.getMaxLimitRequests())
+                .timeUnit(TimeUnit.valueOf(rateLimitDto.getTimeUnit())).build();
+        limitRepository.delete(rateLimit);
+    }
+
+    @CacheEvict(cacheNames = "user", key = "#id")
+    public void updateRateLimit(Long id, RateLimitDto rateLimitDto) {
+        RateLimit rateLimit = RateLimit.builder()
+                .id(rateLimitDto.getId())
+                .limitDuration(rateLimitDto.getLimitDuration())
+                .maxLimitRequests(rateLimitDto.getMaxLimitRequests())
+                .timeUnit(TimeUnit.valueOf(rateLimitDto.getTimeUnit())).build();
+        limitRepository.save(rateLimit);
+    }
 }

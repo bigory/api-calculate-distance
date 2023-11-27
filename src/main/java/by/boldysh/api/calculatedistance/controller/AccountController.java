@@ -14,7 +14,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -23,14 +22,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class AccountController {
 
-    @Autowired
-    private AccountService accountService;
+    private final AccountService accountService;
+
+    private final AuthenticationManager authenticationManager;
+
+    private final JwtUtils jwtUtils;
 
     @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
-    private JwtUtils jwtUtils;
+    public AccountController(AccountService accountService, AuthenticationManager authenticationManager, JwtUtils jwtUtils) {
+        this.accountService = accountService;
+        this.authenticationManager = authenticationManager;
+        this.jwtUtils = jwtUtils;
+    }
 
     @PostMapping("api/signin")
     public ResponseEntity<?> singIn(@RequestBody AccountDto accountDto) {
@@ -60,7 +63,7 @@ public class AccountController {
     }
 
 
-    @GetMapping("api/delete-user")
+    @PostMapping("api/delete-user")
     public @ResponseBody AccountDto deleteUser(@RequestBody AccountDto accountDto) {
         return accountService.deleteUser(accountDto);
     }

@@ -22,13 +22,15 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Autowired
-    private AccountAuthService accountAuthService;
+    private final AccountAuthService accountAuthService;
+    public final AuthTokenFilter authenticationJwtTokenFilter;
 
-    @Bean
-    public AuthTokenFilter authenticationJwtTokenFilter() {
-        return new AuthTokenFilter();
+    @Autowired
+    public SecurityConfig(AccountAuthService accountAuthService, AuthTokenFilter authenticationJwtTokenFilter) {
+        this.accountAuthService = accountAuthService;
+        this.authenticationJwtTokenFilter = authenticationJwtTokenFilter;
     }
+
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
@@ -55,11 +57,11 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth ->
-                        auth.requestMatchers("api/signup","api/signin","api/signout").permitAll()
+                        auth.requestMatchers("api/signup", "api/signin", "api/signout").permitAll()
                                 .anyRequest().authenticated()
                 );
         http.authenticationProvider(authenticationProvider());
-        http.addFilterAfter(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(authenticationJwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
